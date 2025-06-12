@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart' show CarouselOptions, CarouselSlider;
 import 'package:carousel_slider/carousel_controller.dart' show CarouselController, CarouselSliderController;
 
-// Pages importées
 import 'package:projet_synthese/Pages/prayer_times.dart';
 import 'package:projet_synthese/Pages/quibla.dart';
 import 'package:projet_synthese/Pages/traduction_page.dart';
