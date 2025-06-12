@@ -39,6 +39,9 @@ dependencies:
   permission_handler: ^11.0.1
   audioplayers: ^5.2.1
   http: ^0.13.6
+  sembast: ^3.4.0
+  sqflite: ^2.3.0
+  carousel_slider: ^5.0.0
 
 dev_dependencies:
   flutter_test:

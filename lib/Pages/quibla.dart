@@ -45,7 +45,7 @@ class _QiblaFinderPageState extends State<QiblaFinderPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("                       Qibla Finder", style: TextStyle(color: Colors.black),),
+        title: Text("Qibla Finder", style: TextStyle(color: Colors.black),),
         backgroundColor: Colors.white,
       ),
       body: StreamBuilder<CompassEvent>(

@@ -1,298 +1,345 @@
 import 'package:flutter/material.dart';
+import 'package:carousel_slider/carousel_slider.dart' show CarouselOptions, CarouselSlider;
+import 'package:carousel_slider/carousel_controller.dart' show CarouselController, CarouselSliderController;
+
+// Pages importées
 import 'package:projet_synthese/Pages/prayer_times.dart';
 import 'package:projet_synthese/Pages/quibla.dart';
 import 'package:projet_synthese/Pages/traduction_page.dart';
-
+import '../QuranApp.dart';
 import 'adkar_page.dart';
+import 'misbaha_page.dart';
 import 'audio_library.dart';
+import 'chahada.dart';
+import 'names_of_allah.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final CarouselSliderController _carouselController = CarouselSliderController();
+  int _currentIndex = 0;
+
+  final List<Map<String, String>> dhikrList = [
+    {
+      'text': 'سبحان الله وبحمده سبحان الله العظيم',
+      'translation': '',
+      'reference': 'Riyad as-Salihin 1406'
+    },
+    {
+      'text': 'لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير',
+      'translation': '',
+      'reference': 'Riyad as-Salihin 1413'
+    },
+    {
+      'text': 'من قال لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير، عشر مرات، كان كمن أعتق أربعة أنفس',
+      'translation': '',
+      'reference': 'Bukhari 3293'
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      //Color(0xFF1A1A1A),
-
-      body: Column(
-        children: [
-          // 🌃 Section principale avec image de fond
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  // Hero section avec image de la Mecque
-                  Container(
-                    height: 280,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: NetworkImage('https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'),
-                        fit: BoxFit.cover,
-                      ),
+      backgroundColor: Color(0xFFF8F5F2),
+      drawer: _buildDrawer(context),
+      appBar: AppBar(
+        backgroundColor: Color(0xFF1A3E72),
+        elevation: 0,
+        title: Text('My Islamic App', style: TextStyle(fontWeight: FontWeight.w300)),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Section Date/Lieu
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 20),
+              decoration: BoxDecoration(
+                color: Color(0xFF1A3E72),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30),
+                ),
+              ),
+              child: Center(
+                child: Column(
+                  children: [
+                    Text(
+                      '24 Thul-Qi\'dah 1446',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
                     ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.black.withOpacity(0.3),
-                            Colors.black.withOpacity(0.7),
-                          ],
-                        ),
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.all(20),
-                        child: Column(
-                          children: [
-                            // Date et lieu
-                            Spacer(),
-                            Spacer(),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  "24 Thul-Qi'dah 1446",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                Text(
-                                  "SAFI",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            Spacer(),
-
-                            // Section prière
-                            Column(
-                              children: [
-                                Text(
-                                  "Maghrib",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.w300,
-                                  ),
-                                ),
-                                SizedBox(height: 10),
-
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    // Icône mosquée
-                                    Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.2),
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: Icon(
-                                        Icons.mosque,
-                                        color: Colors.white,
-                                        size: 20,
-                                      ),
-                                    ),
-                                    SizedBox(width: 20),
-
-                                    // Temps principal
-                                    Text(
-                                      "20:38",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 48,
-                                        fontWeight: FontWeight.w300,
-                                        fontFamily: 'monospace',
-                                      ),
-                                    ),
-                                    SizedBox(width: 20),
-
-                                    // Countdown
-                                    Text(
-                                      "01:12:03",
-                                      style: TextStyle(
-                                        color: Colors.white.withOpacity(0.8),
-                                        fontSize: 16,
-                                        fontFamily: 'monospace',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-
-                            Spacer(),
-
-                            // Citation en arabe
-                            Text(
-                              "لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.9),
-                                fontSize: 16,
-                                height: 1.6,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                    SizedBox(height: 5),
+                    Text(
+                      'SAFI, Morocco',
+                      style: TextStyle(color: Colors.white70, fontSize: 16),
                     ),
-                  ),
+                  ],
+                ),
+              ),
+            ),
 
-                  // Séparateur
-                  Container(
-                    height: 1,
-                    color: Colors.grey.withOpacity(0.3),
-                  ),
-
-                  // 🎯 Grid des fonctionnalités
-                  Container(
-                    color: Colors.white,
-                    padding: EdgeInsets.all(20),
-                    child: GridView.count(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      crossAxisCount: 3,
-                      childAspectRatio: 0.85,
-                      mainAxisSpacing: 20,
-                      crossAxisSpacing: 20,
+            // Carte Carrousel Dhikr/Hadith
+            Padding(
+              padding: EdgeInsets.all(20),
+              child: Card(
+                elevation: 5,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  children: [
+                    // Image avec effet de superposition
+                    Stack(
                       children: [
-                        _buildCircularCard("Prayer times", Icons.access_time, () {
-                      print("Prayer times clicked");
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => PrayerTimesPage()));
-                    }),
-                        _buildCircularCard("Holy Quran", Icons.menu_book, () {
-                          print("Prayer times clicked");
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => PrayerTimesPage()));
-                        }),
-                        _buildCircularCard("Adkar", Icons.favorite, () {
-                          print("Prayer times clicked");
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => AdkarPage()));
-                        }),
-                        _buildCircularCard("Misbaha", Icons.grain, () {
-                          print("Prayer times clicked");
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => PrayerTimesPage()));
-                        }),
-                        _buildCircularCard("Interpretation and\ntranslation", Icons.translate, () {
-                          print("Prayer times clicked");
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => AyahTranslationPage()));
-                        }),
-                        _buildCircularCard("Qibla finder", Icons.explore, () {
-                          print("Prayer times clicked");
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => QiblaFinderPage()));
-                        }),
-                        _buildCircularCard("Audio Library", Icons.headphones, () {
-                          print("Prayer times clicked");
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => ElegantAudioLibraryPage()));
-                        }),
-                        _buildCircularCard("Live TV", Icons.live_tv, () {
-                          print("Prayer times clicked");
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => PrayerTimesPage()));
-                        }),
-                        _buildCircularCard("Nearby Mosques", Icons.location_on, () {
-                          print("Prayer times clicked");
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => PrayerTimesPage()));
-                        }),
-                        _buildCircularCard("Shahada", Icons.verified, () {
-                          print("Prayer times clicked");
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => PrayerTimesPage()));
-                        }),
-                        _buildCircularCard("Names of Allah", Icons.text_format, () {
-                          print("Prayer times clicked");
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => PrayerTimesPage()));
-                        }),
-                        _buildCircularCard("Quranic\nSupplications", Icons.handshake, () {
-                          print("Prayer times clicked");
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => PrayerTimesPage()));
-                        }),
-                        _buildCircularCard("Community", Icons.group, () {
-                          print("Prayer times clicked");
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => PrayerTimesPage()));
-                        }),
-                        _buildCircularCard("Share", Icons.share, () {
-                          print("Prayer times clicked");
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => PrayerTimesPage()));
-                        }),
-                        _buildCircularCard("Donations", Icons.attach_money, () {
-                          print("Prayer times clicked");
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => PrayerTimesPage()));
-                        }),
+                        ClipRRect(
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                          child: Image.network(
+                            'https://images.unsplash.com/photo-1542816417-09836749781e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                            height: 180,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Container(
+                          height: 180,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withOpacity(0.7),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 20,
+                          left: 20,
+                          right: 20,
+                          child: Text(
+                            'Dhikr du Jour',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
+
+                    // Carrousel Dhikr
+                    CarouselSlider(
+                      carouselController: _carouselController,
+                      items: dhikrList.map((dhikr) {
+                        return Padding(
+                          padding: EdgeInsets.all(20),
+                          child: Column(
+                            children: [
+                              Text(
+                                dhikr['text']!,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  height: 1.8,
+                                  color: Color(0xFF1A3E72),
+                                ),
+                              ),
+                              SizedBox(height: 15),
+                              Text(
+                                dhikr['translation']!,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[700],
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                              SizedBox(height: 10),
+                              Text(
+                                dhikr['reference']!,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[500],
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                      options: CarouselOptions(
+                        height: 200,
+                        autoPlay: true,
+                        autoPlayInterval: Duration(seconds: 8),
+                        enlargeCenterPage: true,
+                        viewportFraction: 1,
+                        onPageChanged: (index, reason) {
+                          setState(() {
+                            _currentIndex = index;
+                          });
+                        },
+                      ),
+                    ),
+
+                    // Indicateurs de position
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: dhikrList.map((dhikr) {
+                        int index = dhikrList.indexOf(dhikr);
+                        return Container(
+                          width: 8,
+                          height: 8,
+                          margin: EdgeInsets.symmetric(horizontal: 4),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _currentIndex == index
+                                ? Color(0xFF1A3E72)
+                                : Colors.grey.withOpacity(0.4),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    SizedBox(height: 15),
+                  ],
+                ),
+              ),
+            ),
+
+            // Carte Prochaine Prière
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Card(
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Prochaine Prière',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                          Text(
+                            'Temps restant: 01:12:03',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 15),
+                      Row(
+                        children: [
+                          Icon(Icons.mosque, color: Color(0xFF1A3E72), size: 30),
+                          SizedBox(width: 15),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Maghrib',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                'Prière du coucher du soleil',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Spacer(),
+                          Text(
+                            '20:38',
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1A3E72),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDrawer(BuildContext context) {
+    return Drawer(
+      width: MediaQuery.of(context).size.width * 0.75,
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Color(0xFF1A3E72),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.mosque, size: 50, color: Colors.white),
+                  SizedBox(height: 10),
+                  Text(
+                    'Islamic App',
+                    style: TextStyle(color: Colors.white, fontSize: 20),
                   ),
                 ],
               ),
             ),
           ),
+          _drawerItem(Icons.access_time, 'Prayer Times', () => _navigateTo(context, PrayerTimesPage())),
+          _drawerItem(Icons.menu_book, 'Holy Quran', () => _navigateTo(context, SurahListScreen())),
+          _drawerItem(Icons.favorite, 'Adkar', () => _navigateTo(context, AdkarPage())),
+          _drawerItem(Icons.grain, 'Misbaha', () => _navigateTo(context, MisbahaPage())),
+          _drawerItem(Icons.translate, 'Translation', () => _navigateTo(context, AyahTranslationPage())),
+          _drawerItem(Icons.explore, 'Qibla Finder', () => _navigateTo(context, QiblaFinderPage())),
+          _drawerItem(Icons.headphones, 'Audio Library', () => _navigateTo(context, ElegantAudioLibraryPage())),
+          _drawerItem(Icons.verified, 'Shahada', () => _navigateTo(context, ShahadaPage())),
+          _drawerItem(Icons.text_format, 'Names of Allah', () => _navigateTo(context, NamesOfAllahApp())),
+          Divider(),
+          _drawerItem(Icons.settings, 'Settings', () {}),
+          _drawerItem(Icons.share, 'Share App', () {}),
         ],
       ),
     );
   }
 
-  Widget _buildCircularCard(String title, IconData icon, VoidCallback onTap) {
-    return Column(
-      children: [
-        Container(
-          width: 70,
-          height: 70,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.purple.withOpacity(0.1),
-                Color(0xFF1E1E1E)
-              ],
-            ),
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Color(0xFF1E1E1E).withOpacity(0.3),
-                blurRadius: 8,
-                offset: Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(35),
-              onTap: onTap,
-              child: Icon(
-                icon,
-                color: Colors.white,
-                size: 28,
-              ),
-            ),
-          ),
-        ),
-        SizedBox(height: 8),
-        Text(
-          title,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 12,
-            fontWeight: FontWeight.w400,
-          ),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
+  Widget _drawerItem(IconData icon, String title, VoidCallback onTap) {
+    return ListTile(
+      leading: Icon(icon, color: Color(0xFF1A3E72)),
+      title: Text(title),
+      onTap: onTap,
     );
   }
 
+  void _navigateTo(BuildContext context, Widget page) {
+    Navigator.pop(context); // Ferme le drawer
+    Navigator.push(context, MaterialPageRoute(builder: (_) => page));
+  }
 }

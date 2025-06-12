@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:audioplayers/audioplayers.dart';
 
 class ElegantAudioLibraryPage extends StatefulWidget {
@@ -10,34 +12,40 @@ class _ElegantAudioLibraryPageState extends State<ElegantAudioLibraryPage> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   String? _currentlyPlaying;
   bool _isPlaying = false;
+  bool _isLoading = true;
 
-  final List<Map<String, String>> audioList = [
-    {
-      'title': 'Sourate Al-Fatiha',
-      'reciter': 'Mishary Al-Afasy',
-      'duration': '3:45',
-      'url': 'https://www.example.com/audio/fatiha.mp3',
-    },
-    {
-      'title': 'Sourate Al-Baqarah (1-5)',
-      'reciter': 'Abdul Basit',
-      'duration': '7:22',
-      'url': 'https://www.example.com/audio/baqarah1.mp3',
-    },
-    {
-      'title': 'Doua du matin',
-      'reciter': 'Yasser Al-Dosari',
-      'duration': '2:15',
-      'url': 'https://www.example.com/audio/doua_matin.mp3',
-    },
-  ];
+  List<Map<String, String>> audioList = [];
+  @override
+  void initState() {
+    super.initState();
+    fetchAudioList();
+  }
+
+  Future<void> fetchAudioList() async {
+    final res = await http.get(Uri.parse('https://api.alquran.cloud/v1/quran/ar.alafasy'));
+    print(res.body); // Ajout pour débogage
+    if (res.statusCode == 200) {
+      final body = json.decode(res.body);
+      final List<dynamic> surahs = body['data']['surahs'];
+      setState(() {
+        audioList = surahs.map<Map<String, String>>((s) => {
+          'title': '${s['englishName']} (${s['name']})',
+          'reciter': 'Mishary Alafasy',
+          'duration': '?', // non fourni ; tu peux le calculer via audioplayer
+          'url': s['audio'],
+        }).toList();
+        _isLoading = false;
+      });
+    } else {
+      setState(() => _isLoading = false);
+      // Gérer l'erreur si besoin
+    }
+  }
 
   void _playAudio(String url) async {
-    if (_currentlyPlaying == url) {
+    if (_currentlyPlaying == url && _isPlaying) {
       await _audioPlayer.pause();
-      setState(() {
-        _isPlaying = false;
-      });
+      setState(() => _isPlaying = false);
     } else {
       await _audioPlayer.play(UrlSource(url));
       setState(() {
@@ -55,36 +63,30 @@ class _ElegantAudioLibraryPageState extends State<ElegantAudioLibraryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final Color primaryColor = Color(0xFF6A1B9A); // Violet profond
-    final Color accentColor = Color(0xFFE1BEE7);  // Violet clair
-
+    final Color primaryColor = Color(0xFF6A1B9A);
+    final Color accentColor = Color(0xFFE1BEE7);
     return Scaffold(
       appBar: AppBar(
         title: Text('Bibliothèque Audio',
-          style: TextStyle(
-            color: Colors.black,
-            fontFamily: 'Lateef',
-            fontSize: 28,
-          ),
-        ),
+            style: TextStyle(
+              color: Colors.black,
+              fontFamily: 'Lateef',
+              fontSize: 28,
+            )),
         backgroundColor: Colors.white,
         centerTitle: true,
         elevation: 0,
       ),
-      body: Container(
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFF9F5FF), // Blanc violeté très clair
-              Color(0xFFF0EBFA), // Blanc violeté clair
-            ],
+            colors: [Color(0xFFF9F5FF), Color(0xFFF0EBFA)],
           ),
         ),
         child: Column(
           children: [
-            // Player en cours (si un audio est sélectionné)
             if (_currentlyPlaying != null)
               Container(
                 padding: EdgeInsets.all(16),
@@ -92,9 +94,7 @@ class _ElegantAudioLibraryPageState extends State<ElegantAudioLibraryPage> {
                 decoration: BoxDecoration(
                   color: primaryColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: primaryColor.withOpacity(0.2),
-                  ),
+                  border: Border.all(color: primaryColor.withOpacity(0.2)),
                 ),
                 child: Row(
                   children: [
@@ -113,10 +113,7 @@ class _ElegantAudioLibraryPageState extends State<ElegantAudioLibraryPage> {
                           ),
                           Text(
                             audioList.firstWhere((a) => a['url'] == _currentlyPlaying)['reciter']!,
-                            style: TextStyle(
-                              color: Colors.grey[700],
-                              fontSize: 12,
-                            ),
+                            style: TextStyle(color: Colors.grey[700], fontSize: 12),
                           ),
                         ],
                       ),
@@ -132,8 +129,6 @@ class _ElegantAudioLibraryPageState extends State<ElegantAudioLibraryPage> {
                   ],
                 ),
               ),
-
-            // Liste des audios
             Expanded(
               child: ListView.builder(
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -141,24 +136,17 @@ class _ElegantAudioLibraryPageState extends State<ElegantAudioLibraryPage> {
                 itemBuilder: (context, index) {
                   final audio = audioList[index];
                   final isCurrent = _currentlyPlaying == audio['url'];
-
                   return Container(
                     margin: EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 8,
-                          offset: Offset(0, 4),
-                        ),
+                        BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8, offset: Offset(0, 4)),
                       ],
                     ),
                     child: Card(
                       elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       color: isCurrent ? accentColor.withOpacity(0.3) : Colors.white,
                       child: InkWell(
                         borderRadius: BorderRadius.circular(16),
@@ -170,46 +158,23 @@ class _ElegantAudioLibraryPageState extends State<ElegantAudioLibraryPage> {
                               Container(
                                 width: 50,
                                 height: 50,
-                                decoration: BoxDecoration(
-                                  color: primaryColor.withOpacity(0.1),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  Icons.library_music,
-                                  color: primaryColor,
-                                ),
+                                decoration: BoxDecoration(color: primaryColor.withOpacity(0.1), shape: BoxShape.circle),
+                                child: Icon(Icons.library_music, color: primaryColor),
                               ),
                               SizedBox(width: 16),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      audio['title']!,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 16,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
+                                    Text(audio['title']!, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16, color: Colors.black87)),
                                     SizedBox(height: 4),
-                                    Text(
-                                      '${audio['reciter']!} • ${audio['duration']}',
-                                      style: TextStyle(
-                                        color: Colors.grey[600],
-                                        fontSize: 13,
-                                      ),
-                                    ),
+                                    Text('${audio['reciter']!} • ${audio['duration']}',
+                                        style: TextStyle(color: Colors.grey[600], fontSize: 13)),
                                   ],
                                 ),
                               ),
-                              Icon(
-                                isCurrent && _isPlaying
-                                    ? Icons.pause_circle_filled
-                                    : Icons.play_circle_filled,
-                                color: primaryColor,
-                                size: 32,
-                              ),
+                              Icon(isCurrent && _isPlaying ? Icons.pause_circle_filled : Icons.play_circle_fill,
+                                  color: primaryColor, size: 32),
                             ],
                           ),
                         ),
